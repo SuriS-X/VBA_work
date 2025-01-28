@@ -1,0 +1,47 @@
+# Find data range within PivotTable with headers and index (exclude selection rows)
+
+Public Function findPivotTable(wsname As String, tableindex As Variant) As Range
+
+    Dim pt As PivotTable
+    Dim datalocation As Range
+    Dim ws As Worksheet
+    
+    On Error GoTo ErrorHandler
+    
+    Set ws = ThisWorkbook.Sheets(wsname)
+    Set pt = ws.PivotTables(tableindex)
+    Set datalocation = pt.DataBodyRange
+    
+    Set findPivotTable = datalocation.Resize(datalocation.Rows.Count + 1, datalocation.Columns.Count + 1)
+    Set findPivotTable = findPivotTable.Offset(-1, -1)
+
+    Exit Function
+    
+ErrorHandler:
+    Set findPivotTable = Nothing
+    
+End Function
+
+
+
+
+# Find a dynamic current region requiring well-defined start cell
+
+Public Function findReference(wsname As String, startcell As String) As Range
+
+    Dim refRange As Range
+    Dim ws As Worksheet
+    
+    On Error GoTo ErrorHandler
+    
+    Set ws = ThisWorkbook.Sheets(wsname)
+    Set refRange = ws.Range(startcell).CurrentRegion
+    
+    Set findReference = refRange
+    Exit Function
+    
+ErrorHandler:
+    Set findReference = Nothing
+
+End Function
+
