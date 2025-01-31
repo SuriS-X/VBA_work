@@ -1,0 +1,80 @@
+Public Function copytable(ws As Worksheet, sourceRange As Range) As Range
+    
+    Dim rowcount As Integer, columncount As Integer
+    Dim copyRange As Range
+    Dim startcell As Range
+    Dim newStartcell As String
+    Dim userResponse As VbMsgBoxResult
+    Dim isOverwriteNeeded As Boolean
+    
+    rowcount = sourceRange.Rows.Count
+    columncount = sourceRange.Columns.Count
+
+    ' default location 
+    Set startcell = ws.Cells(sourceRange.Row + rowcount + 5, sourceRange.Column)
+    
+    ' check if the space is used & set boolean for conditional execution 
+    isOverwriteNeeded = False
+    For Each cell In sourceRange
+        offsetRow = cell.Row - sourceRange.Row
+        offsetCol = cell.Column - sourceRange.Column
+        If Not IsEmpty(startcell.Offset(offsetRow, offsetCol)) Then
+            isOverwriteNeeded = True
+            Exit For
+        End If
+    Next cell
+    
+    ' choose to overwrite or write in a new range
+    If isOverwriteNeeded Then
+    userResponse = MsgBox("Existed data on " & ws.Name & ". Do you want to overwrite them?", _
+                          vbYesNo + vbQuestion, "Data Overwrite Confirmation")
+                          
+        If userResponse = vbNo Then
+            newStartcell = InputBox("Please enter start cell(e.g.,A1):", "New Start Cell")
+            
+            ' check if user enters nothing (which might suggest he/she wants to stop overwriting process)
+            If newStartcell = "" Then
+                MsgBox "Empty. Exiting function"
+                Set copytable = Nothing
+                Exit Function
+            End If
+
+            ' user entered something unresonable, ws.Range()is nothing, then would be dealt by the code below 
+            On Error Resume Next
+            Set startcell = ws.Range(newStartcell)
+            On Error GoTo 0
+            
+            If startcell Is Nothing Then
+                MsgBox "Invalid. Exiting function "
+                Set copytable = Nothing
+                Exit Function
+            End If
+            
+        End If
+        
+    End If
+                              
+    ' Passed all checking process and get a right starcell to copy 
+    For Each cell In sourceRange
+        offsetRow = cell.Row - sourceRange.Row
+        offsetCol = cell.Column - sourceRange.Column
+        
+        With startcell.Offset(offsetRow, offsetCol)           
+            'copy into new range
+            If cell.Interior.Color = getColor("B3") Then
+                .Value = ""
+            Else
+                .Value = cell.Value
+            End If     
+        End With
+    Next cell
+    
+    Set copyRange = startcell.Resize(rowcount, columncount)
+    Set copytable = copyRange
+    
+End Function
+
+
+**
+If there's no "on error goto/resume", you can still handle error in sub()
+Make sure your error handler in functions aligned with that in sub()
