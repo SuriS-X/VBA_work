@@ -24,7 +24,6 @@ End Function
 
 
 
-
 # Find a dynamic current region requiring well-defined start cell
 
 Public Function findReference(wsname As String, startcell As String) As Range
@@ -45,3 +44,6 @@ ErrorHandler:
 
 End Function
 
+***
+1. If you want to use function under dynamic sheets, then set the sheet name as one of the inputs.
+2. Set ErrorHandler return Nothing in a function when error happens
